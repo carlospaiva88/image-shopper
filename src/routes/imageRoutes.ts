@@ -1,8 +1,9 @@
 // Endpoints 
 
 import { Router } from 'express'
-import { getImageResults, processImage } from '../controllers/imageController'
 import multer from 'multer'
+import { processImage, confirmMeasurement } from '../controllers/imageController'
+import { listMeasurements } from '../db/db'
 
 const router = Router()
 
@@ -11,6 +12,7 @@ const storage = multer.memoryStorage()
 const upload = multer({ storage })
 
 router.post('/upload', upload.single('image'), processImage)
-router.get('/results/:id', getImageResults)
+router.patch('/confirm', confirmMeasurement)
+router.get('/customer_code/list', listMeasurements)
 
 export default router
