@@ -1,3 +1,4 @@
 node_modules/
 .env
-/app/robotic-epoch-433814-e0-dea78bee005a.json
+
+.config/gcloud/robotic-epoch-433814-e0-716222ca8a27.json

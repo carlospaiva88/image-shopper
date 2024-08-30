@@ -14,7 +14,11 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=chokurei
       - DB_NAME=image_shopper
-
+      - GCLOUD_PROJECT_ID=robotic-epoch-433814-e0
+      - GCLOUD_KEY_FILE=/app/robotic-epoch-433814-e0-716222ca8a27.json # Caminho no container
+    volumes:
+      - /home/carlosjr/.config/gcloud/robotic-epoch-433814-e0-716222ca8a27.json:/app/robotic-epoch-433814-e0-716222ca8a27.json # Caminho no host : Caminho no container
+  
   db:
     image: postgres:13
     environment:
