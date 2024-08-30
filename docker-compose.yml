@@ -11,15 +11,15 @@ services:
     environment:
       - DB_HOST=db
       - DB_PORT=5432  # Porta interna do PostgreSQL
-      - DB_USER=postgres
-      - DB_PASSWORD=chokurei
+      - DB_USER=user
+      - DB_PASSWORD=password
       - DB_NAME=image_shopper
 
   db:
     image: postgres:13
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: chokurei
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
       POSTGRES_DB: image_shopper
     ports:
       - "5433:5432"
