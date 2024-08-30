@@ -13,6 +13,6 @@ const upload = multer({ storage })
 
 router.post('/upload', upload.single('image'), processImage)
 router.patch('/confirm', confirmMeasurement)
-router.get('/customer_code/list', listMeasurements)
+router.get('/customer/:customer_code/list', listMeasurements)
 
 export default router

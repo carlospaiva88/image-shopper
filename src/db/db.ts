@@ -1,32 +1,15 @@
 import { Pool } from "pg"
 import { Request, Response } from 'express';
 
-const pool = new Pool({
+export const pool = new Pool({
     user: process.env.DB_USER,
     host: process.env.DB_HOST,
     database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
+    password: process.env.DB_PASSWORD || '',
     port: Number(process.env.DB_PORT)
 
 })
 
-
-export const createTable = async () => {
-    const query = `
-        CREATE TABLE IF NOT EXISTS measurements (
-            id SERIAL PRIMARY KEY,
-            customer_code VARCHAR(50) NOT NULL,
-            measure_datetime TIMESTAMP NOT NULL,
-            measure_type VARCHAR(50) NOT NULL,
-            image_url TEXT NOT NULL,
-            measure_value INTEGER NOT NULL,
-            measure_uuid UUID NOT NULL,
-            confirmed_value INTEGER,
-            has_confirmed BOOLEAN DEFAULT FALSE
-        )
-    `
-    await pool.query(query);
-}
 
 // inserir um registro
 export const saveMeasurement = async (measurementData: any) => {
@@ -58,10 +41,21 @@ export const confirmMeasurement = async (uuid:string, confirmedValue:number) => 
     `
     const values = [confirmedValue, uuid]
 
-    const result = await pool.query(query, values)
-    return result.rows[0]
+    try {
+        const result = await pool.query(query, values)
+        console.log('Rows affected:', result.rowCount)
+        console.log('Confirm Measurement Result:', result.rows[0])
+        return result.rows[0]
+    } catch (error) { 
+        console.log('Error confirming measurement', error)
+        throw error
+    }
+    
+    
+    
 }
 
+// listar um registro
 export const listMeasurements = async (req: Request, res: Response) => {
     const { customer_code } = req.params;
     const { measure_type } = req.query;
@@ -72,14 +66,18 @@ export const listMeasurements = async (req: Request, res: Response) => {
             error_description: 'Código do cliente não fornecido',
         });
     }
-
+    if (measure_type && !['WATER', 'GAS'].includes((measure_type as string).toUpperCase()))
+        return res.status(400).json({
+            error_code: 'INVALID_TYPE',
+            error_description: 'Tipo de medição não permitida'
+        })
     try {
         let query = `SELECT * FROM measurements WHERE customer_code = $1`;
-        const values = [customer_code];
+        const values: any[] = [customer_code]
 
         if (measure_type) {
             query += ' AND LOWER(measure_type) = LOWER($2)';
-            values.push(measure_type as string);
+            values.push((measure_type as string).toLowerCase())
         }
 
         const result = await pool.query(query, values);
@@ -91,7 +89,7 @@ export const listMeasurements = async (req: Request, res: Response) => {
             });
         }
 
-        res.status(200).json({
+        res.status(200).json({ 
             customer_code,
             measures: result.rows,
         });
